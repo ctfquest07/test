@@ -12,7 +12,7 @@ function TermsOfService() {
         <section className="legal-section">
           <h2>1. Acceptance of Terms</h2>
           <p>
-            By accessing or using the pwngrid Horizon platform, you agree to be bound by these Terms of Service and all applicable laws and regulations.
+            By accessing or using the CTFQuest platform, you agree to be bound by these Terms of Service and all applicable laws and regulations.
             If you do not agree with any of these terms, you are prohibited from using or accessing this site.
           </p>
         </section>
@@ -20,13 +20,13 @@ function TermsOfService() {
         <section className="legal-section">
           <h2>2. Use License</h2>
           <p>
-            Permission is granted to temporarily access the materials on pwngrid Horizon's website for personal, non-commercial use only.
+            Permission is granted to temporarily access the materials on CTFQuest's website for personal, non-commercial use only.
             This is the grant of a license, not a transfer of title, and under this license you may not:
           </p>
           <ul className="legal-list">
             <li>Modify or copy the materials;</li>
             <li>Use the materials for any commercial purpose;</li>
-            <li>Attempt to decompile or reverse engineer any software contained on pwngrid Horizon's website;</li>
+            <li>Attempt to decompile or reverse engineer any software contained on CTFQuest's website;</li>
             <li>Remove any copyright or other proprietary notations from the materials; or</li>
             <li>Transfer the materials to another person or "mirror" the materials on any other server.</li>
           </ul>
@@ -47,7 +47,7 @@ function TermsOfService() {
         <section className="legal-section">
           <h2>4. Ethical Conduct</h2>
           <p>
-            pwngrid Horizon is designed for educational purposes and to promote ethical hacking skills. You agree to:
+            CTFQuest is designed for educational purposes and to promote ethical hacking skills. You agree to:
           </p>
           <ul className="legal-list">
             <li>Only use the skills and techniques learned on our platform for legal and ethical purposes;</li>
@@ -60,7 +60,7 @@ function TermsOfService() {
         <section className="legal-section">
           <h2>5. Disclaimer</h2>
           <p>
-            The materials on pwngrid Horizon's website are provided on an 'as is' basis. pwngrid Horizon makes no warranties, expressed or implied,
+            The materials on CTFQuest's website are provided on an 'as is' basis. CTFQuest makes no warranties, expressed or implied,
             and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability,
             fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
           </p>
@@ -69,18 +69,18 @@ function TermsOfService() {
         <section className="legal-section">
           <h2>6. Limitations</h2>
           <p>
-            In no event shall pwngrid Horizon or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit,
-            or due to business interruption) arising out of the use or inability to use the materials on pwngrid Horizon's website,
-            even if pwngrid Horizon or a pwngrid Horizon authorized representative has been notified orally or in writing of the possibility of such damage.
+            In no event shall CTFQuest or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit,
+            or due to business interruption) arising out of the use or inability to use the materials on CTFQuest's website,
+            even if CTFQuest or a CTFQuest authorized representative has been notified orally or in writing of the possibility of such damage.
           </p>
         </section>
 
         <section className="legal-section">
           <h2>7. Revisions and Errata</h2>
           <p>
-            The materials appearing on pwngrid Horizon's website could include technical, typographical, or photographic errors.
-            pwngrid Horizon does not warrant that any of the materials on its website are accurate, complete or current.
-            pwngrid Horizon may make changes to the materials contained on its website at any time without notice.
+            The materials appearing on CTFQuest's website could include technical, typographical, or photographic errors.
+            CTFQuest does not warrant that any of the materials on its website are accurate, complete or current.
+            CTFQuest may make changes to the materials contained on its website at any time without notice.
           </p>
         </section>
 
