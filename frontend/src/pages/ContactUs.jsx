@@ -59,16 +59,21 @@ function ContactUs() {
             <span className="info-icon">📧</span>
             <div>
               <h3>Email</h3>
-              <p>veltionx@gmail.com</p>
-              <p>pwngrid@gmail.com</p>
+              <p>ctfquest@gmail.com</p>
+            </div>
+          </div>
+          <div className="info-item">
+            <span className="info-icon">📞</span>
+            <div>
+              <h3>Contact</h3>
+              <p>+91 63819 26572</p>
             </div>
           </div>
           <div className="info-item">
             <span className="info-icon">💬</span>
             <div>
               <h3>Social</h3>
-              <p>Discord: veltrionxCommunity</p>
-              <p>Twitter: @veltrionx</p>
+              <p>Discord: CTFQuest</p>
             </div>
           </div>
         </div>

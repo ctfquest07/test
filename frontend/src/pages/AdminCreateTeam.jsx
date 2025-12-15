@@ -38,8 +38,9 @@ function AdminCreateTeam() {
         };
 
         const res = await axios.get('/api/auth/users', config);
-        const nonAdminUsers = (res.data.users || []).filter(u => u.role !== 'admin');
-        setUsers(nonAdminUsers);
+        // Filter out admin users and users who already have a team
+        const availableUsers = (res.data.users || []).filter(u => u.role !== 'admin' && !u.team);
+        setUsers(availableUsers);
         setIsLoading(false);
       } catch (err) {
         console.error('Error fetching users:', err);

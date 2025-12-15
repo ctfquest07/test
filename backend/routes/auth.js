@@ -17,16 +17,48 @@ const crypto = require('crypto');
 
 // Helper function to extract device info from user agent
 const parseUserAgent = (userAgent) => {
-  const browser = userAgent.match(/(Chrome|Firefox|Safari|Edge|Opera)\/(\d+)/i)?.[0] || 'Unknown';
-  const os = userAgent.match(/(Windows|Mac|Linux|Android|iOS)/i)?.[0] || 'Unknown';
-  const device = userAgent.match(/(Mobile|Tablet)/i) ? 'Mobile' : 'Desktop';
+  if (!userAgent || userAgent === 'Unknown') {
+    return { browser: 'Unknown', os: 'Unknown', device: 'Unknown' };
+  }
+  
+  // Extract browser
+  let browser = 'Unknown';
+  if (userAgent.includes('Chrome')) browser = 'Chrome';
+  else if (userAgent.includes('Firefox')) browser = 'Firefox';
+  else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) browser = 'Safari';
+  else if (userAgent.includes('Edge')) browser = 'Edge';
+  else if (userAgent.includes('Opera')) browser = 'Opera';
+  
+  // Extract OS
+  let os = 'Unknown';
+  if (userAgent.includes('Windows')) os = 'Windows';
+  else if (userAgent.includes('Mac')) os = 'macOS';
+  else if (userAgent.includes('Linux')) os = 'Linux';
+  else if (userAgent.includes('Android')) os = 'Android';
+  else if (userAgent.includes('iOS')) os = 'iOS';
+  
+  // Extract device type
+  let device = 'Desktop';
+  if (userAgent.includes('Mobile')) device = 'Mobile';
+  else if (userAgent.includes('Tablet')) device = 'Tablet';
+  
   return { browser, os, device };
+};
+
+// Helper function to get real IP address
+const getRealIP = (req) => {
+  return req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+         req.headers['x-real-ip'] ||
+         req.connection?.remoteAddress ||
+         req.socket?.remoteAddress ||
+         req.ip ||
+         'Unknown';
 };
 
 // Helper function to create login log
 const createLoginLog = async (user, req, status, failureReason = null) => {
   try {
-    const ipAddress = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] || 'Unknown';
+    const ipAddress = getRealIP(req);
     const userAgent = req.headers['user-agent'] || 'Unknown';
     const deviceInfo = parseUserAgent(userAgent);
     
@@ -587,6 +619,7 @@ router.get('/users', protect, authorize('admin', 'superadmin'), async (req, res)
     const totalUsers = await User.countDocuments();
     const users = await User.find()
       .select('-password')
+      .populate('team', 'name')
       .limit(limit)
       .skip(skip)
       .sort({ createdAt: -1 });
