@@ -113,10 +113,6 @@ export const enforceCSP = () => {
 export const initSecurity = () => {
   enforceCSP();
   
-  // Prevent right-click context menu in production
-  if (process.env.NODE_ENV === 'production') {
-    document.addEventListener('contextmenu', (e) => e.preventDefault());
-    document.addEventListener('selectstart', (e) => e.preventDefault());
-    document.addEventListener('dragstart', (e) => e.preventDefault());
-  }
+  // Allow right-click and text selection for better user experience
+  // Removed restrictions to enable copying and right-click functionality
 };

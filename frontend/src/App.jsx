@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import { initSecurity } from './utils/security'
 import './App.css'
+import './enable-copy.css'
 
 // Context
 import { AuthProvider } from './context/AuthContext'
@@ -44,6 +45,31 @@ import Analytics from './pages/Analytics'
 function App() {
   useEffect(() => {
     initSecurity();
+    
+    // Force enable right-click and text selection
+    document.addEventListener('DOMContentLoaded', () => {
+      // Remove any existing event listeners that prevent right-click
+      document.oncontextmenu = null;
+      document.onselectstart = null;
+      document.ondragstart = null;
+      
+      // Enable text selection on all elements
+      const style = document.createElement('style');
+      style.textContent = `
+        * {
+          user-select: text !important;
+          -webkit-user-select: text !important;
+          -moz-user-select: text !important;
+          -ms-user-select: text !important;
+        }
+      `;
+      document.head.appendChild(style);
+    });
+    
+    // Also run immediately
+    document.oncontextmenu = null;
+    document.onselectstart = null;
+    document.ondragstart = null;
   }, []);
 
   return (
