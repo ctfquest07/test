@@ -532,7 +532,6 @@
   align-items: center;
   gap: 10px;
   cursor: pointer;
-  user-select: none;
 }
 
 .toggle-switch input {
