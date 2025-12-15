@@ -109,7 +109,7 @@ function AdminLoginLogs() {
     <div className="admin-login-logs">
       <div className="logs-header">
         <h1>Login <span className="highlight">Logs</span></h1>
-        <p>Monitor user login activities and security events</p>
+        <p>Monitor user login activities (IP and device tracking disabled)</p>
         <button className="back-button" onClick={() => navigate('/admin')}>
           ← Back to Dashboard
         </button>
