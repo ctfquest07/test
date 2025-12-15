@@ -521,10 +521,17 @@ router.get('/leaderboard', protect, async (req, res) => {
 
     if (type === 'teams') {
       const Team = require('../models/Team');
-      const teams = await Team.find()
+      let teams = await Team.find()
         .select('name solvedChallenges members')
-        .populate('members', 'username email points')
+        .populate('members', 'username email points showInLeaderboard')
         .lean();
+
+      // If not admin, filter teams to only show those with visible members
+      if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+        teams = teams.filter(team => 
+          team.members.some(member => member.showInLeaderboard !== false)
+        );
+      }
 
       // Calculate total points for each team by summing member points
       const teamsWithPoints = teams.map(team => ({
@@ -540,13 +547,21 @@ router.get('/leaderboard', protect, async (req, res) => {
         data: teamsWithPoints
       });
     } else {
-      const users = await User.find({ role: 'user' })
-        .select('username points solvedChallenges role team')
+      // Build query based on user role
+      let userQuery = { role: 'user' };
+      
+      // If not admin, only show users with showInLeaderboard: true (default) or explicitly true
+      if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+        userQuery.showInLeaderboard = { $ne: false }; // Show users where showInLeaderboard is not false
+      }
+      
+      const users = await User.find(userQuery)
+        .select('username points solvedChallenges role team showInLeaderboard')
         .populate('team', 'name')
         .sort({ points: -1 })
         .limit(50);
 
-      console.log('Leaderboard users:', users.map(u => ({ username: u.username, role: u.role })));
+      console.log('Leaderboard users:', users.map(u => ({ username: u.username, role: u.role, showInLeaderboard: u.showInLeaderboard })));
 
       res.json({
         success: true,
