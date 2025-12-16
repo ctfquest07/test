@@ -70,8 +70,8 @@
 }
 
 .dashboard-tabs {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 2rem;
   background: rgba(26, 46, 70, 0.5);
@@ -80,6 +80,9 @@
   border: 1px solid #1a2e46;
   width: 100%;
   box-sizing: border-box;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
 }
 
 .tab-button {
@@ -3384,14 +3387,19 @@ input[type="url"]::placeholder {
   }
   
   .dashboard-tabs {
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
     gap: 0.25rem;
     padding: 0.25rem;
+    scrollbar-width: thin;
   }
   
   .tab-button {
     padding: 0.5rem 0.75rem;
     font-size: 0.8rem;
+    flex-shrink: 0;
+    min-width: 100px;
   }
   
   .dashboard-header {
