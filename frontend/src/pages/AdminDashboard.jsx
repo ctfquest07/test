@@ -13,10 +13,12 @@ function AdminDashboard() {
   const [challenges, setChallenges] = useState([]);
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('users');
   const [successMessage, setSuccessMessage] = useState('');
   const [subscribers, setSubscribers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
 
   const [userPage, setUserPage] = useState(1);
   const [teamPage, setTeamPage] = useState(1);
@@ -58,7 +60,12 @@ function AdminDashboard() {
     const fetchData = async () => {
       if (!token) return;
 
-      setLoading(true);
+      // Only show loading for initial load, not for search
+      if (!debouncedSearchTerm) {
+        setLoading(true);
+      } else {
+        setSearchLoading(true);
+      }
       setError(null);
 
       const config = {
@@ -68,29 +75,45 @@ function AdminDashboard() {
       };
 
       try {
-        const searchParam = debouncedSearchTerm ? `&search=${encodeURIComponent(debouncedSearchTerm)}` : '';
-        const [usersRes, challengesRes, subscribersRes, teamsRes, noticesRes] = await Promise.all([
-          axios.get(`/api/auth/users?page=${userPage}&limit=${itemsPerPage}${searchParam}`, config),
-          axios.get(`/api/challenges?page=${challengePage}&limit=${itemsPerPage}`, config),
-          axios.get('/api/newsletter/subscribers', config).catch(() => ({ data: [] })),
-          axios.get(`/api/teams?page=${teamPage}&limit=${itemsPerPage}`, config).catch(() => ({ data: { data: [] } })),
-          axios.get('/api/notices', config).catch(() => ({ data: { data: [] } }))
-        ]);
+        let usersRes;
+        if (debouncedSearchTerm) {
+          // When searching, get all matching users without pagination
+          usersRes = await axios.get(`/api/auth/users?all=true&search=${encodeURIComponent(debouncedSearchTerm)}`, config);
+          setUsers(usersRes.data.users || []);
+          setUserTotal(usersRes.data.users?.length || 0);
+          setAllUsers(usersRes.data.users || []);
+        } else {
+          // Normal pagination when not searching
+          usersRes = await axios.get(`/api/auth/users?page=${userPage}&limit=${itemsPerPage}`, config);
+          setUsers(usersRes.data.users || []);
+          setUserTotal(usersRes.data.total || 0);
+        }
 
-        setUsers(usersRes.data.users || []);
-        setUserTotal(usersRes.data.total || 0);
-        setChallenges(challengesRes.data.data || []);
-        setChallengeTotal(challengesRes.data.total || 0);
-        setSubscribers(subscribersRes.data || []);
-        setTeams(teamsRes.data.data || []);
-        setTeamTotal(teamsRes.data.total || 0);
-        setNotices(noticesRes.data.data || []);
-        setNoticeTotal(noticesRes.data.data?.length || 0);
+        // Only fetch other data on initial load or when not searching
+        if (!debouncedSearchTerm) {
+          const [challengesRes, subscribersRes, teamsRes, noticesRes] = await Promise.all([
+            axios.get(`/api/challenges?page=${challengePage}&limit=${itemsPerPage}`, config),
+            axios.get('/api/newsletter/subscribers', config).catch(() => ({ data: [] })),
+            axios.get(`/api/teams?page=${teamPage}&limit=${itemsPerPage}`, config).catch(() => ({ data: { data: [] } })),
+            axios.get('/api/notices', config).catch(() => ({ data: { data: [] } }))
+          ]);
+
+          setChallenges(challengesRes.data.data || []);
+          setChallengeTotal(challengesRes.data.total || 0);
+          setSubscribers(subscribersRes.data || []);
+          setTeams(teamsRes.data.data || []);
+          setTeamTotal(teamsRes.data.total || 0);
+          setNotices(noticesRes.data.data || []);
+          setNoticeTotal(noticesRes.data.data?.length || 0);
+        }
+
         setLoading(false);
+        setSearchLoading(false);
       } catch {
         console.error('Error fetching dashboard data');
         setError('Failed to fetch data. Please try again.');
         setLoading(false);
+        setSearchLoading(false);
       }
     };
 
@@ -590,24 +613,31 @@ function AdminDashboard() {
             </table>
           </div>
           <div className="pagination">
-            <button 
-              onClick={() => setUserPage(Math.max(1, userPage - 1))} 
-              disabled={userPage === 1}
-              className="pagination-btn"
-            >
-              Previous
-            </button>
+            {!debouncedSearchTerm && (
+              <>
+                <button 
+                  onClick={() => setUserPage(Math.max(1, userPage - 1))} 
+                  disabled={userPage === 1}
+                  className="pagination-btn"
+                >
+                  Previous
+                </button>
+                <button 
+                  onClick={() => setUserPage(userPage + 1)} 
+                  disabled={userPage >= Math.ceil(userTotal / itemsPerPage)}
+                  className="pagination-btn"
+                >
+                  Next
+                </button>
+              </>
+            )}
             <span className="pagination-info">
-              Page {userPage} of {Math.ceil(userTotal / itemsPerPage) || 1} 
-              ({filteredUsers.length} of {userTotal} users)
+              {debouncedSearchTerm ? (
+                `Found ${filteredUsers.length} users matching "${debouncedSearchTerm}"`
+              ) : (
+                `Page ${userPage} of ${Math.ceil(userTotal / itemsPerPage) || 1} ({filteredUsers.length} of ${userTotal} users)`
+              )}
             </span>
-            <button 
-              onClick={() => setUserPage(userPage + 1)} 
-              disabled={userPage >= Math.ceil(userTotal / itemsPerPage)}
-              className="pagination-btn"
-            >
-              Next
-            </button>
           </div>
         </div>
       )}
