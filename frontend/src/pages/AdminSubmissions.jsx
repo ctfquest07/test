@@ -78,7 +78,10 @@ function AdminSubmissions() {
   return (
     <div className="admin-dashboard">
       <div className="dashboard-header">
-        <h1>Challenge <span className="highlight">Submissions</span></h1>
+        <div className="header-content">
+          <h1>Challenge <span className="highlight">Submissions</span></h1>
+          <p>Monitor challenge submission statistics and user attempts</p>
+        </div>
         <button className="back-button" onClick={() => navigate('/admin')}>
           ← Back to Dashboard
         </button>

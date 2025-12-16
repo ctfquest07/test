@@ -1,4 +1,34 @@
 /* Submissions Page Styles */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dashboard-header .header-content {
+  flex: 1;
+}
+
+.dashboard-header .back-button {
+  background: rgba(0, 255, 170, 0.1);
+  color: #00ffaa;
+  border: 1px solid rgba(0, 255, 170, 0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.dashboard-header .back-button:hover {
+  background: rgba(0, 255, 170, 0.2);
+  border-color: rgba(0, 255, 170, 0.5);
+  transform: translateX(-2px);
+}
 .submissions-overview .challenges-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
