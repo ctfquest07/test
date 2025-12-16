@@ -117,6 +117,10 @@ const UserSchema = new mongoose.Schema({
     question: String,
     answer: String
   }],
+  lastSolveTime: {
+    type: Date,
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now

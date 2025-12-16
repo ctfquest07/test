@@ -537,7 +537,7 @@ router.get('/leaderboard', protect, async (req, res) => {
       const Team = require('../models/Team');
       let teams = await Team.find()
         .select('name solvedChallenges members')
-        .populate('members', 'username email points showInLeaderboard')
+        .populate('members', 'username email points showInLeaderboard lastSolveTime')
         .lean();
 
       // If not admin, filter teams to only show those with visible members
@@ -547,11 +547,27 @@ router.get('/leaderboard', protect, async (req, res) => {
         );
       }
 
-      // Calculate total points for each team by summing member points
-      const teamsWithPoints = teams.map(team => ({
-        ...team,
-        points: team.members.reduce((total, member) => total + (member.points || 0), 0)
-      })).sort((a, b) => b.points - a.points).slice(0, 20);
+      // Calculate total points and most recent solve time for each team
+      const teamsWithPoints = teams.map(team => {
+        const totalPoints = team.members.reduce((total, member) => total + (member.points || 0), 0);
+        const mostRecentSolve = team.members.reduce((latest, member) => {
+          const memberSolveTime = member.lastSolveTime ? new Date(member.lastSolveTime) : new Date(0);
+          return memberSolveTime > latest ? memberSolveTime : latest;
+        }, new Date(0));
+        
+        return {
+          ...team,
+          points: totalPoints,
+          lastSolveTime: mostRecentSolve
+        };
+      }).sort((a, b) => {
+        // Primary sort: points (descending)
+        if (b.points !== a.points) {
+          return b.points - a.points;
+        }
+        // Secondary sort: most recent solve time (descending)
+        return new Date(b.lastSolveTime) - new Date(a.lastSolveTime);
+      }).slice(0, 20);
 
       console.log('Leaderboard teams:', teamsWithPoints.map(t => ({ name: t.name, members: t.members.length, points: t.points })));
 
@@ -570,9 +586,9 @@ router.get('/leaderboard', protect, async (req, res) => {
       }
       
       const users = await User.find(userQuery)
-        .select('username points solvedChallenges role team showInLeaderboard')
+        .select('username points solvedChallenges role team showInLeaderboard lastSolveTime')
         .populate('team', 'name')
-        .sort({ points: -1 })
+        .sort({ points: -1, lastSolveTime: -1, username: 1 })
         .limit(50);
 
       console.log('Leaderboard users:', users.map(u => ({ username: u.username, role: u.role, showInLeaderboard: u.showInLeaderboard })));

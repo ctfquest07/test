@@ -185,12 +185,13 @@ router.post('/:id/submit', protect, sanitizeInput, async (req, res) => {
       });
     }
 
-    // Update user
+    // Update user with solve time
     await User.findByIdAndUpdate(
       req.user.id,
       {
         $addToSet: { solvedChallenges: challenge._id },
-        $inc: { points: challenge.points }
+        $inc: { points: challenge.points },
+        $set: { lastSolveTime: new Date() }
       }
     );
 
