@@ -74,7 +74,7 @@ function Home() {
                 <li>Community forums & chat</li>
                 <li>Progress tracking</li>
               </ul>
-              <Link to="/register" className="path-button">Get Started</Link>
+
             </div>
             <div className="path-card">
               <h3>For Educators</h3>
@@ -94,7 +94,7 @@ function Home() {
                 <li>Custom branding options</li>
                 <li>Advanced analytics</li>
               </ul>
-              <Link to="/events" className="path-button">Host Events</Link>
+
             </div>
           </div>
         </div>
