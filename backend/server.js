@@ -9,6 +9,7 @@ const compression = require('compression');
 const session = require('express-session');
 const crypto = require('crypto');
 const requestIp = require('request-ip');
+const morgan = require('morgan')
 
 // Security middleware imports
 const { 
@@ -45,6 +46,8 @@ const analyticsRoutes = require('./routes/analytics');
 // Initialize express app
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+app.use(morgan('dev'));
 
 // Trust proxy for accurate IP addresses
 app.set('trust proxy', 1);
@@ -364,7 +367,7 @@ mongoose.connect(MONGODB_URI, mongoOptions)
   const { ensureAdminPassword } = require('./scripts/createAdminWithNewPassword');
   await ensureAdminPassword();
 
-  app.listen(PORT, '0.0.0.0', () => {
+  app.listen(PORT, "127.0.0.1", () => {
     console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
     console.log(`Server accessible at http://localhost:${PORT}`);
     console.log(`MongoDB connection pool configured for ${mongoOptions.maxPoolSize} concurrent connections`);
