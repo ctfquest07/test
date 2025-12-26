@@ -334,6 +334,26 @@ router.post('/:id/submit', protect, sanitizeInput, async (req, res) => {
       points: challenge.points
     });
 
+    // Publish real-time submission event
+    try {
+      const submissionEvent = {
+        user: req.user.username || 'Unknown',
+        email: req.user.email,
+        flag: submittedFlag,
+        points: challenge.points,
+        submittedAt: new Date().toISOString(),
+        ip: clientIp,
+        challenge: challenge.title
+      };
+
+      // Fire and forget - don't await/block
+      redisClient.publish('ctf:submissions:live', JSON.stringify(submissionEvent)).catch(err => {
+        console.error('Redis publish error:', err);
+      });
+    } catch (e) {
+      console.error('Error publishing submission event:', e);
+    }
+
     res.json({
       success: true,
       message: `Challenge "${challenge.title}" solved successfully!`,

@@ -1,5 +1,6 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import { sanitizeInput, validateEmail, validatePassword, rateLimiter } from '../utils/security';
 import Logger from '../utils/logger';
@@ -17,6 +18,20 @@ function Login() {
   const { login, error, clearErrors } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  const [authConfig, setAuthConfig] = useState({ maxLoginAttempts: 5, loginWindowMs: 900000 });
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const res = await axios.get('/api/config/auth');
+        setAuthConfig(res.data);
+      } catch (err) {
+        console.error('Failed to fetch auth config:', err);
+      }
+    };
+    fetchConfig();
+  }, []);
+
   const { email, password } = formData;
 
   const onChange = (e) => {
@@ -30,8 +45,8 @@ function Login() {
   const onSubmit = async (e) => {
     e.preventDefault();
 
-    // Rate limiting check
-    if (!rateLimiter.isAllowed('login', 5, 900000)) { // 5 attempts per 15 minutes
+    // Rate limiting check - Now synced with backend .env
+    if (!rateLimiter.isAllowed('login', authConfig.maxLoginAttempts, authConfig.loginWindowMs)) {
       setFormError('Too many login attempts. Please try again later.');
       Logger.warn('LOGIN_RATE_LIMITED', { email });
       return;
@@ -59,12 +74,12 @@ function Login() {
       Logger.error('LOGIN_FAILED', { email, error: err.message });
       const errorMessage = err.response?.data?.message || err.message || 'Login failed. Please try again.';
       setFormError(errorMessage);
-      
+
       // Check if user is blocked
       if (err.response?.status === 403 && err.response?.data?.isBlocked) {
         setIsBlocked(true);
       }
-      
+
       setIsSubmitting(false);
     }
   };

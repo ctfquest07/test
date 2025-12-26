@@ -52,6 +52,7 @@
     "xss-clean": "^0.1.1"
   },
   "devDependencies": {
+    "eventsource": "^4.1.0",
     "morgan": "^1.10.1",
     "nodemon": "^3.1.11"
   },

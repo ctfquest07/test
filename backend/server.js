@@ -44,6 +44,7 @@ const tutorialRoutes = require('./routes/tutorials');
 const teamRoutes = require('./routes/teams');
 const noticeRoutes = require('./routes/notice');
 const analyticsRoutes = require('./routes/analytics');
+const realtimeRoutes = require('./routes/realtime');
 
 // Initialize express app
 const app = express();
@@ -220,6 +221,16 @@ app.get('/api/health', (req, res) => {
   }
 });
 
+// Auth configuration endpoint to sync frontend limits with .env
+app.get('/api/config/auth', (req, res) => {
+  res.json({
+    maxLoginAttempts: parseInt(process.env.MAX_LOGIN_ATTEMPTS) || 100,
+    loginWindowMs: (parseInt(process.env.FLAG_SUBMIT_WINDOW) || 15) * 60 * 1000,
+    flagSubmitMaxAttempts: parseInt(process.env.FLAG_SUBMIT_MAX_ATTEMPTS) || 100,
+    flagSubmitWindowMs: (parseInt(process.env.FLAG_SUBMIT_WINDOW) || 1) * 60 * 1000
+  });
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/challenges', challengeRoutes);
@@ -231,6 +242,7 @@ app.use('/api/tutorials', tutorialRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/notices', noticeRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/r-submission', realtimeRoutes);
 
 // Enhanced security headers middleware
 // Enhanced security headers middleware - Relaxed for UX

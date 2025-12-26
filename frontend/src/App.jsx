@@ -43,18 +43,19 @@ import Notice from './pages/Notice'
 import Analytics from './pages/Analytics'
 import AdminSubmissions from './pages/AdminSubmissions'
 import UserProfile from './pages/UserProfile'
+import AdminLiveMonitor from './pages/AdminLiveMonitor'
 
 function App() {
   useEffect(() => {
     initSecurity();
-    
+
     // Force enable right-click and text selection
     document.addEventListener('DOMContentLoaded', () => {
       // Remove any existing event listeners that prevent right-click
       document.oncontextmenu = null;
       document.onselectstart = null;
       document.ondragstart = null;
-      
+
       // Enable text selection on all elements
       const style = document.createElement('style');
       style.textContent = `
@@ -67,7 +68,7 @@ function App() {
       `;
       document.head.appendChild(style);
     });
-    
+
     // Also run immediately
     document.oncontextmenu = null;
     document.onselectstart = null;
@@ -172,6 +173,11 @@ function App() {
               <Route path="/admin/submissions" element={
                 <ProtectedRoute adminOnly={true}>
                   <AdminSubmissions />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/live-monitor" element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminLiveMonitor />
                 </ProtectedRoute>
               } />
               <Route path="/blocked" element={<UserBlocked />} />

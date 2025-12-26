@@ -289,12 +289,12 @@ function AdminDashboard() {
   // Apply client-side filtering for role and status (search is handled by backend)
   const filteredUsers = users.filter(u => {
     const matchesRole = userRoleFilter === 'all' || u.role === userRoleFilter;
-    const matchesStatus = userStatusFilter === 'all' || 
-                         (userStatusFilter === 'active' && !u.isBlocked) ||
-                         (userStatusFilter === 'blocked' && u.isBlocked);
+    const matchesStatus = userStatusFilter === 'all' ||
+      (userStatusFilter === 'active' && !u.isBlocked) ||
+      (userStatusFilter === 'blocked' && u.isBlocked);
     return matchesRole && matchesStatus;
   }).sort((a, b) => {
-    switch(userSortBy) {
+    switch (userSortBy) {
       case 'points':
         return (b.points || 0) - (a.points || 0);
       case 'username':
@@ -336,15 +336,15 @@ function AdminDashboard() {
   const handleBlockUser = async (userId, username, isCurrentlyBlocked) => {
     const action = isCurrentlyBlocked ? 'unblock' : 'block';
     const reason = isCurrentlyBlocked ? null : prompt('Enter reason for blocking (optional):');
-    
+
     if (!isCurrentlyBlocked && reason === null) return; // User cancelled
-    
+
     if (!window.confirm(`Are you sure you want to ${action} user "${username}"?`)) return;
 
     try {
       await axios.put(
         `/api/auth/users/${userId}/block`,
-        { 
+        {
           isBlocked: !isCurrentlyBlocked,
           reason: reason || 'No reason provided'
         },
@@ -442,6 +442,12 @@ function AdminDashboard() {
           Submissions
         </button>
         <button
+          className="tab-button"
+          onClick={() => navigate('/admin/live-monitor')}
+        >
+          Live Monitor
+        </button>
+        <button
           className={`tab-button ${activeTab === 'platform-control' ? 'active' : ''}`}
           onClick={() => navigate('/admin/platform-control')}
         >
@@ -485,7 +491,7 @@ function AdminDashboard() {
             <h2>User Management</h2>
             <Link to="/admin/create-user" className="btn-primary">+ Create User</Link>
           </div>
-          
+
           <div className="user-filters">
             <input
               type="text"
@@ -500,18 +506,18 @@ function AdminDashboard() {
               <option value="username">Username (A-Z)</option>
               <option value="email">Email (A-Z)</option>
             </select>
-            <select 
-              value={userRoleFilter} 
-              onChange={(e) => setUserRoleFilter(e.target.value)} 
+            <select
+              value={userRoleFilter}
+              onChange={(e) => setUserRoleFilter(e.target.value)}
               className="sort-select"
             >
               <option value="all">All Roles</option>
               <option value="user">Users Only</option>
               <option value="admin">Admins Only</option>
             </select>
-            <select 
-              value={userStatusFilter} 
-              onChange={(e) => setUserStatusFilter(e.target.value)} 
+            <select
+              value={userStatusFilter}
+              onChange={(e) => setUserStatusFilter(e.target.value)}
               className="sort-select"
             >
               <option value="all">All Status</option>
@@ -539,12 +545,12 @@ function AdminDashboard() {
                   <tr key={u._id}>
                     <td>
                       <strong>{u.username}</strong>
-                      {u.isBlocked && <span style={{color: '#ff4444', marginLeft: '0.5rem', fontSize: '0.8rem'}}>🚫</span>}
+                      {u.isBlocked && <span style={{ color: '#ff4444', marginLeft: '0.5rem', fontSize: '0.8rem' }}>🚫</span>}
                     </td>
                     <td title={u.email}>{u.email}</td>
                     <td><span className={`role-badge ${u.role}`}>{u.role}</span></td>
                     <td>
-                      <strong style={{color: '#00ffaa'}}>{u.points}</strong>
+                      <strong style={{ color: '#00ffaa' }}>{u.points}</strong>
                     </td>
                     <td>
                       <span className={`status-badge ${u.isBlocked ? 'blocked' : 'active'}`}>
@@ -552,9 +558,9 @@ function AdminDashboard() {
                       </span>
                     </td>
                     <td>
-                      <span style={{color: '#00aaff'}}>{u.solvedChallenges?.length || 0}</span>
-                      {(u.solvedChallenges?.length || 0) > 0 && 
-                        <span style={{marginLeft: '0.3rem', fontSize: '0.8rem'}}>🏆</span>
+                      <span style={{ color: '#00aaff' }}>{u.solvedChallenges?.length || 0}</span>
+                      {(u.solvedChallenges?.length || 0) > 0 &&
+                        <span style={{ marginLeft: '0.3rem', fontSize: '0.8rem' }}>🏆</span>
                       }
                     </td>
                     <td title={new Date(u.createdAt).toLocaleString()}>
@@ -615,15 +621,15 @@ function AdminDashboard() {
           <div className="pagination">
             {!debouncedSearchTerm && (
               <>
-                <button 
-                  onClick={() => setUserPage(Math.max(1, userPage - 1))} 
+                <button
+                  onClick={() => setUserPage(Math.max(1, userPage - 1))}
                   disabled={userPage === 1}
                   className="pagination-btn"
                 >
                   Previous
                 </button>
-                <button 
-                  onClick={() => setUserPage(userPage + 1)} 
+                <button
+                  onClick={() => setUserPage(userPage + 1)}
                   disabled={userPage >= Math.ceil(userTotal / itemsPerPage)}
                   className="pagination-btn"
                 >
@@ -678,8 +684,8 @@ function AdminDashboard() {
             </table>
           </div>
           <div className="pagination">
-            <button 
-              onClick={() => setTeamPage(Math.max(1, teamPage - 1))} 
+            <button
+              onClick={() => setTeamPage(Math.max(1, teamPage - 1))}
               disabled={teamPage === 1}
               className="pagination-btn"
             >
@@ -688,8 +694,8 @@ function AdminDashboard() {
             <span className="pagination-info">
               Page {teamPage} of {Math.ceil(teamTotal / itemsPerPage) || 1}
             </span>
-            <button 
-              onClick={() => setTeamPage(teamPage + 1)} 
+            <button
+              onClick={() => setTeamPage(teamPage + 1)}
               disabled={teamPage >= Math.ceil(teamTotal / itemsPerPage)}
               className="pagination-btn"
             >
@@ -747,8 +753,8 @@ function AdminDashboard() {
             </table>
           </div>
           <div className="pagination">
-            <button 
-              onClick={() => setChallengePage(Math.max(1, challengePage - 1))} 
+            <button
+              onClick={() => setChallengePage(Math.max(1, challengePage - 1))}
               disabled={challengePage === 1}
               className="pagination-btn"
             >
@@ -757,8 +763,8 @@ function AdminDashboard() {
             <span className="pagination-info">
               Page {challengePage} of {Math.ceil(challengeTotal / itemsPerPage) || 1}
             </span>
-            <button 
-              onClick={() => setChallengePage(challengePage + 1)} 
+            <button
+              onClick={() => setChallengePage(challengePage + 1)}
               disabled={challengePage >= Math.ceil(challengeTotal / itemsPerPage)}
               className="pagination-btn"
             >
@@ -807,7 +813,7 @@ function AdminDashboard() {
         <div className="dashboard-section">
           <div className="section-header">
             <h2>Notice Management</h2>
-            <button 
+            <button
               className="btn-primary"
               onClick={() => setShowNoticeForm(!showNoticeForm)}
             >
@@ -822,7 +828,7 @@ function AdminDashboard() {
                 <input
                   type="text"
                   value={noticeForm.title}
-                  onChange={(e) => setNoticeForm({...noticeForm, title: e.target.value})}
+                  onChange={(e) => setNoticeForm({ ...noticeForm, title: e.target.value })}
                   placeholder="Enter notice title"
                   required
                 />
@@ -832,7 +838,7 @@ function AdminDashboard() {
                 <label>Description *</label>
                 <textarea
                   value={noticeForm.description}
-                  onChange={(e) => setNoticeForm({...noticeForm, description: e.target.value})}
+                  onChange={(e) => setNoticeForm({ ...noticeForm, description: e.target.value })}
                   placeholder="Enter notice description"
                   rows="6"
                   required
@@ -888,7 +894,7 @@ function AdminDashboard() {
           </div>
 
           {notices.length === 0 && (
-            <div style={{textAlign: 'center', padding: '2rem', color: '#888'}}>
+            <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
               No notices yet. Create one to get started!
             </div>
           )}

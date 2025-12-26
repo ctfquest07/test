@@ -39,10 +39,10 @@ const createAdvancedRateLimit = (windowMs, max, message, skipSuccessfulRequests 
   });
 };
 
-// Relaxed limits for UX
+// Relaxed limits for UX - Now synced with .env
 const strictLoginLimiter = createAdvancedRateLimit(
-  15 * 60 * 1000, // 15 minutes
-  100, // Relaxed to 100 for heavy competition traffic
+  (parseInt(process.env.FLAG_SUBMIT_WINDOW) || 15) * 60 * 1000,
+  parseInt(process.env.MAX_LOGIN_ATTEMPTS) || 100,
   'Too many login attempts. Please wait a moment.',
   false
 );
@@ -54,8 +54,8 @@ const apiLimiter = createAdvancedRateLimit(
 );
 
 const challengeSubmitLimiter = createAdvancedRateLimit(
-  60 * 1000,
-  100, // Effectively allowing rapid guessing manually
+  (parseInt(process.env.FLAG_SUBMIT_WINDOW) || 1) * 60 * 1000,
+  parseInt(process.env.FLAG_SUBMIT_MAX_ATTEMPTS) || 100,
   'Please slow down your submissions.'
 );
 
