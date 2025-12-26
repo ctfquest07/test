@@ -45,31 +45,46 @@ router.get('/', async (req, res) => {
             return res.status(403).json({ message: 'Not authorized' });
         }
     } catch (err) {
+        console.error('SSE Auth error:', err);
         return res.status(401).json({ message: 'Invalid token' });
     }
 
-    // 2. Setup SSE Headers
-    res.writeHead(200, {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-        'X-Accel-Buffering': 'no' // Important for Nginx
-    });
+    // 2. Setup SSE Headers with CORS support
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no'); // Important for Nginx/proxy
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    
+    // Write status code
+    res.status(200);
 
     activeConnections++;
-    console.log(`New SSE connection. Active connections: ${activeConnections}`);
+    console.log(`[SSE] New connection. Active: ${activeConnections}, User: ${user.username}`);
 
-    // 3. Send initial connection message
+    // 3. Send initial connection message and flush
     res.write(`data: ${JSON.stringify({ type: 'connected', message: 'Connected to live submission stream' })}\n\n`);
+    
+    // Flush the response to establish connection immediately
+    if (res.flush) res.flush();
 
     // 4. Message Handler for this specific connection
     const messageHandler = (channel, message) => {
         if (channel === 'ctf:submissions:live') {
             try {
+                // Check if connection is still alive
+                if (res.writableEnded || res.finished) {
+                    return;
+                }
                 // Format as SSE data
                 res.write(`data: ${message}\n\n`);
+                // Flush to ensure immediate delivery
+                if (res.flush) res.flush();
             } catch (err) {
-                console.error('Error writing SSE message:', err);
+                console.error('[SSE] Error writing message:', err);
+                // Clean up on write error
+                subscriber.removeListener('message', messageHandler);
             }
         }
     };
@@ -77,21 +92,28 @@ router.get('/', async (req, res) => {
     // 5. Attach message handler for this connection
     subscriber.on('message', messageHandler);
 
-    // Send heartbeat every 30 seconds to keep connection alive
+    // Send heartbeat every 15 seconds to keep connection alive
     const heartbeatInterval = setInterval(() => {
         try {
+            // Check if connection is still alive
+            if (res.writableEnded || res.finished) {
+                clearInterval(heartbeatInterval);
+                return;
+            }
             res.write(`:heartbeat\n\n`);
+            if (res.flush) res.flush();
         } catch (err) {
+            console.error('[SSE] Heartbeat error:', err);
             clearInterval(heartbeatInterval);
         }
-    }, 30000);
+    }, 15000);
 
     // 6. Cleanup on client disconnect
     req.on('close', () => {
         subscriber.removeListener('message', messageHandler);
         clearInterval(heartbeatInterval);
         activeConnections--;
-        console.log(`SSE connection closed. Active connections: ${activeConnections}`);
+        console.log(`[SSE] Connection closed. Active: ${activeConnections}`);
     });
 });
 
