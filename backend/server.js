@@ -122,6 +122,8 @@ app.use(compression({
   level: 6,
   threshold: 1024,
   filter: (req, res) => {
+    // Don't compress SSE streams
+    if (req.path.includes('/r-submission')) return false;
     if (req.headers['x-no-compression']) return false;
     return compression.filter(req, res);
   }
