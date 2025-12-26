@@ -490,7 +490,7 @@ router.post('/resetpassword/:resettoken', async (req, res) => {
 // @access  Private
 router.get('/me', protect, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).populate('team');
+    const user = await User.findById(req.user._id).populate('team');
 
     if (user.isBlocked) {
       return res.status(403).json({
@@ -725,7 +725,7 @@ router.get('/users', protect, authorize('admin', 'superadmin'), async (req, res)
 router.get('/users/:id', protect, async (req, res) => {
   try {
     // Allow users to view their own profile or admins to view any profile
-    const isOwnProfile = req.user.id === req.params.id;
+    const isOwnProfile = req.user._id === req.params.id;
     const isAdmin = req.user.role === 'admin' || req.user.role === 'superadmin';
 
     if (!isOwnProfile && !isAdmin) {
@@ -1398,7 +1398,7 @@ router.put('/admin/change-password', protect, authorize('admin', 'superadmin'), 
     }
 
     // Get current user with password
-    const user = await User.findById(req.user.id).select('+password');
+    const user = await User.findById(req.user._id).select('+password');
 
     if (!user) {
       return res.status(404).json({

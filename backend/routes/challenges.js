@@ -207,7 +207,7 @@ router.post('/:id/submit', protect, sanitizeInput, async (req, res) => {
     }
 
     // Get user
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -248,7 +248,7 @@ router.post('/:id/submit', protect, sanitizeInput, async (req, res) => {
     }
 
     // Check rate limiting for flag submissions
-    const rateCheck = await checkFlagSubmissionRate(req.user.id, challenge._id);
+    const rateCheck = await checkFlagSubmissionRate(req.user._id, challenge._id);
     if (!rateCheck.allowed) {
       return res.status(429).json({
         success: false,
@@ -279,7 +279,7 @@ router.post('/:id/submit', protect, sanitizeInput, async (req, res) => {
 
     // Create submission record (both success and failure)
     await Submission.create({
-      user: req.user.id,
+      user: req.user._id,
       challenge: challenge._id,
       submittedFlag: submittedFlag,
       isCorrect: isCorrect,
@@ -290,7 +290,7 @@ router.post('/:id/submit', protect, sanitizeInput, async (req, res) => {
 
     if (!isCorrect) {
       // Record failed submission for rate limiting
-      await recordFailedSubmission(req.user.id, challenge._id);
+      await recordFailedSubmission(req.user._id, challenge._id);
 
       return res.status(400).json({
         success: false,
@@ -299,7 +299,7 @@ router.post('/:id/submit', protect, sanitizeInput, async (req, res) => {
     }
 
     // Clear rate limiting attempts on successful submission
-    await clearSubmissionAttempts(req.user.id, challenge._id);
+    await clearSubmissionAttempts(req.user._id, challenge._id);
 
     // Use transaction for atomic operations to prevent race conditions
     const session = await mongoose.startSession();
@@ -307,7 +307,7 @@ router.post('/:id/submit', protect, sanitizeInput, async (req, res) => {
       await session.withTransaction(async () => {
         // Update user with solve time
         await User.findByIdAndUpdate(
-          req.user.id,
+          req.user._id,
           {
             $addToSet: { solvedChallenges: challenge._id },
             $inc: { points: challenge.points },
@@ -319,7 +319,7 @@ router.post('/:id/submit', protect, sanitizeInput, async (req, res) => {
         // Update challenge
         await Challenge.findByIdAndUpdate(
           req.params.id,
-          { $addToSet: { solvedBy: req.user.id } },
+          { $addToSet: { solvedBy: req.user._id } },
           { session }
         );
       });
@@ -328,7 +328,7 @@ router.post('/:id/submit', protect, sanitizeInput, async (req, res) => {
     }
 
     logActivity('FLAG_SUBMITTED_SUCCESS', {
-      userId: req.user.id,
+      userId: req.user._id,
       challengeId: challenge._id,
       challengeTitle: challenge.title,
       points: challenge.points
