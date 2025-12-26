@@ -8,10 +8,9 @@ const getApiUrl = () => {
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
-  // In production, use the public domain (ctf.sece.ac.in)
-  return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-    ? 'http://localhost:10000' 
-    : 'http://ctf.sece.ac.in:10000';  // Change this line
+  // Default to relative path to allow Nginx to handle proxying
+  // This supports accessing via IP, domain, or localhost seamlessly
+  return '';
 };
 
 // Configure axios defaults
@@ -47,9 +46,9 @@ axios.interceptors.response.use(
     // Handle rate limit errors with better user feedback
     if (error.response.status === 429) {
       const retryAfter = error.response.headers['retry-after'] ||
-                        error.response.data?.retryAfter || 60;
+        error.response.data?.retryAfter || 60;
       const message = error.response.data?.message ||
-                     `Rate limit exceeded. Please try again in ${retryAfter} seconds.`;
+        `Rate limit exceeded. Please try again in ${retryAfter} seconds.`;
 
       console.error(`Rate limit exceeded. Try again in ${retryAfter} seconds.`);
       return Promise.reject({
@@ -106,9 +105,11 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const loadUser = async () => {
       if (token) {
+        // Explicitly set header to avoid useEffect race conditions
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         try {
           const res = await axios.get('/api/auth/me');
-          
+
           // Check if user is blocked
           if (res.status === 403 || res.data.isBlocked) {
             console.warn('User is blocked');
@@ -122,12 +123,12 @@ export const AuthProvider = ({ children }) => {
             setLoading(false);
             return;
           }
-          
+
           setUser(res.data.user);
           setIsAuthenticated(true);
         } catch (err) {
           console.error('Auth error:', err);
-          
+
           // Check if error is due to user being blocked
           if (err.response?.status === 403 && err.response?.data?.isBlocked) {
             console.warn('User is blocked (from error)');
@@ -140,7 +141,7 @@ export const AuthProvider = ({ children }) => {
             setLoading(false);
             return;
           }
-          
+
           localStorage.removeItem('token');
           setToken(null);
           setUser(null);
@@ -161,7 +162,7 @@ export const AuthProvider = ({ children }) => {
     const blockCheckInterval = setInterval(async () => {
       try {
         const res = await axios.get('/api/auth/me');
-        
+
         // If user is blocked, logout immediately
         if (res.data.isBlocked) {
           console.warn('User has been blocked - logging out');

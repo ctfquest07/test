@@ -109,7 +109,7 @@ app.use(session({
   saveUninitialized: false, // Don't create sessions for unauthenticated users
   proxy: true, // Trusted proxy is already set
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // Secure in production
+    secure: false, // process.env.NODE_ENV === 'production', // Relaxed for HTTP deployment
     httpOnly: true, // Prevents XSS theft
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
     sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax' // Lax is better for UX traversing links
