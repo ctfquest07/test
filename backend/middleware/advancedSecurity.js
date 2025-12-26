@@ -41,7 +41,7 @@ const createAdvancedRateLimit = (windowMs, max, message, skipSuccessfulRequests 
 
 // Relaxed limits for UX - Now synced with .env
 const strictLoginLimiter = createAdvancedRateLimit(
-  (parseInt(process.env.FLAG_SUBMIT_WINDOW) || 15) * 60 * 1000,
+  (parseInt(process.env.LOGIN_TIMEOUT) || 1) * 60 * 1000,
   parseInt(process.env.MAX_LOGIN_ATTEMPTS) || 100,
   'Too many login attempts. Please wait a moment.',
   false

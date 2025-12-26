@@ -18,15 +18,17 @@ function Login() {
   const { login, error, clearErrors } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [authConfig, setAuthConfig] = useState({ maxLoginAttempts: 5, loginWindowMs: 900000 });
+  const [authConfig, setAuthConfig] = useState({ maxLoginAttempts: 100, loginWindowMs: 60000 });
 
   useEffect(() => {
     const fetchConfig = async () => {
       try {
-        const res = await axios.get('/api/config/auth');
+        const res = await axios.get('/api/auth/config');
         setAuthConfig(res.data);
       } catch (err) {
         console.error('Failed to fetch auth config:', err);
+        // Use .env defaults if config fetch fails
+        setAuthConfig({ maxLoginAttempts: 100, loginWindowMs: 60000 });
       }
     };
     fetchConfig();

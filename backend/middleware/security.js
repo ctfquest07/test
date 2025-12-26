@@ -1,18 +1,18 @@
 const rateLimit = require('express-rate-limit');
 const validator = require('validator');
 
-// Rate limiting configurations
+// Rate limiting configurations - Now using .env values
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 attempts per window
+  windowMs: (parseInt(process.env.LOGIN_TIMEOUT) || 15) * 60 * 1000,
+  max: parseInt(process.env.MAX_LOGIN_ATTEMPTS) || 100,
   message: { success: false, message: 'Too many login attempts, try again later' },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
 const challengeSubmitLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 10, // 10 submissions per minute
+  windowMs: (parseInt(process.env.FLAG_SUBMIT_WINDOW) || 1) * 60 * 1000,
+  max: parseInt(process.env.FLAG_SUBMIT_MAX_ATTEMPTS) || 100,
   message: { success: false, message: 'Too many flag submissions, slow down' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -20,7 +20,7 @@ const challengeSubmitLimiter = rateLimit({
 
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 requests per window
+  max: 5000, // High limit for general API requests
   message: { success: false, message: 'Too many requests, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,

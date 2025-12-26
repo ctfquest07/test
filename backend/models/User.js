@@ -170,9 +170,9 @@ UserSchema.methods.incrementLoginAttempts = async function () {
   const updates = { $set: { loginAttempts: attempts } };
 
   // Lock the account if we've reached max attempts
-  if (attempts >= parseInt(process.env.MAX_LOGIN_ATTEMPTS || 5, 10)) {
+  if (attempts >= parseInt(process.env.MAX_LOGIN_ATTEMPTS || 100, 10)) {
     // Parse the LOGIN_TIMEOUT value (e.g., "15m" -> 15)
-    const loginTimeout = parseInt(process.env.LOGIN_TIMEOUT || 15, 10);
+    const loginTimeout = parseInt(process.env.LOGIN_TIMEOUT || 1, 10);
     updates.$set.lockUntil = Date.now() + loginTimeout * 60 * 1000;
   }
 

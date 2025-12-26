@@ -86,6 +86,18 @@ const generateToken = (id) => {
   });
 };
 
+// @route   GET /api/auth/config
+// @desc    Get authentication configuration from .env
+// @access  Public
+router.get('/config', (req, res) => {
+  res.json({
+    maxLoginAttempts: parseInt(process.env.MAX_LOGIN_ATTEMPTS) || 100,
+    loginWindowMs: (parseInt(process.env.LOGIN_TIMEOUT) || 1) * 60 * 1000,
+    flagSubmitMaxAttempts: parseInt(process.env.FLAG_SUBMIT_MAX_ATTEMPTS) || 100,
+    flagSubmitWindow: parseInt(process.env.FLAG_SUBMIT_WINDOW) || 30
+  });
+});
+
 // @route   POST /api/auth/register
 // @desc    Public registration disabled - Admin only
 // @access  Public
